@@ -1,22 +1,18 @@
 package com.github.catvod.utils;
 
 import android.net.Uri;
-import android.os.Build;
+
 import com.github.catvod.crawler.SpiderDebug;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import java.util.HashMap;
+
 import java.nio.charset.Charset;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.regex.Pattern;
 
 public class Misc {
-    public static final String UaWinChrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36";
-    public static final String DeAgent = "Dalvik/2.1.0 (Linux; U; Android " + Build.VERSION.RELEASE + "; " + Build.MODEL + " Build/" + Build.ID + ")";
-    public static final String MoAgent = "Mozilla/5.0 (Linux; Android 11; Ghxi Build/RKQ1.200826.002; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/76.0.3809.89 Mobile Safari/537.36 T7/12.16 SearchCraft/3.9.1 (Baidu; P1 11)";
-
     public static boolean isVip(String url) {
         // 适配2.0.6的调用应用内解析列表的支持, 需要配合直连分析一起使用，参考cjt影视和极品直连
         try {
@@ -43,21 +39,11 @@ public class Misc {
         return false;
     }
 
-    public static HashMap<String, String> Headers(int type) {
-        HashMap<String, String> headers = new HashMap<>();
-        if(type==0){
-            headers.put("User-Agent", UaWinChrome);
-        }else  headers.put("User-Agent", MoAgent);
-
-        headers.put("Connection", " Keep-Alive");
-        return headers;
-    }
-
-    private static final Pattern snifferMatch = Pattern.compile("http((?!http).){26,}?\\.(m3u8|mp4)\\?.*|http((?!http).){26,}\\.(m3u8|mp4)|http((?!http).){26,}?/m3u8\\?pt=m3u8.*|http((?!http).)*?default\\.ixigua\\.com/.*|http((?!http).)*?cdn-tos[^\\?]*|http((?!http).)*?/obj/tos[^\\?]*|http.*?/player/m3u8play\\.php\\?url=.*|http.*?/player/.*?[pP]lay\\.php\\?url=.*|http.*?/playlist/m3u8/\\?vid=.*|http.*?\\.php\\?type=m3u8&.*|http.*?/download.aspx\\?.*|http.*?/api/up_api.php\\?.*|https.*?\\.66yk\\.cn.*|http((?!http).)*?netease\\.com/file/.*");
+    private static final Pattern snifferMatch = Pattern.compile("http((?!http).)*?default\\.365yg\\.com/.*|http((?!http).){26,}?\\.(m3u8|mp4|flv|avi|mkv|mov|3gp|asf|rm|rmvb|wmv|mpg|mpeg|mpe|ts|vob|mp3|wma)\\?.*|http((?!http).){26,}\\.(m3u8|mp4|flv|avi|mkv|mov|3gp|asf|rm|rmvb|wmv|mpg|mpeg|mpe|ts|vob|mp3|wma)|http((?!http).){26,}?/m3u8\\?pt=m3u8.*|http((?!http).)*?default\\.ixigua\\.com/.*|http((?!http).)*?cdn-tos[^\\?]*|http((?!http).)*?/obj/tos[^\\?]*|http.*?/player/m3u8play\\.php\\?url=.*|http.*?/player/.*?[pP]lay\\.php\\?url=.*|http.*?/playlist/m3u8/\\?vid=.*|http.*?\\.php\\?type=m3u8&.*|http.*?/download.aspx\\?.*|http.*?/api/up_api.php\\?.*|http.*?\\.66yk\\.cn.*|http((?!http).)*?netease\\.com/file/.*|http((?!http).)*?douyin\\.com/.*/play/\\?.*|http((?!http).)*?huoshan\\.com/.*/\\?item.*");
 
     public static boolean isVideoFormat(String url) {
         if (snifferMatch.matcher(url).find()) {
-            if (url.contains("cdn-tos") && url.contains(".js")) {
+            if ((url.contains("cdn-tos") && (url.contains(".css") || url.contains(".js"))) || url.contains(".jpg") || url.contains(".ico") || url.contains(".png") || url.contains(".gif")) {
                 return false;
             }
             return true;
@@ -86,6 +72,8 @@ public class Misc {
         return false;
     }
 
+    public static final String UaWinChrome = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.54 Safari/537.36";
+
     public static JSONObject fixJsonVodHeader(JSONObject headers, String input, String url) throws JSONException {
         if (headers == null)
             headers = new JSONObject();
@@ -98,10 +86,7 @@ public class Misc {
         } else if (input.contains("bilibili")) {
             headers.put("Referer", " https://www.bilibili.com/");
             headers.put("User-Agent", " " + Misc.UaWinChrome);
-        }else {
-            headers.put("User-Agent", DeAgent);
         }
-        headers.put("Connection", " Keep-Alive");
         return headers;
     }
 
@@ -116,7 +101,7 @@ public class Misc {
         if (url.startsWith("//")) {
             url = "https:" + url;
         }
-        if (!url.startsWith("http")) {
+        if (!url.startsWith("http") && !url.startsWith("magnet")) {
             return null;
         }
         if (url.equals(input)) {
@@ -128,7 +113,7 @@ public class Misc {
             return null;
         }
         JSONObject headers = new JSONObject();
-        String ua = jsonPlayData.optString("user-agent", MoAgent);
+        String ua = jsonPlayData.optString("user-agent", "");
         if (ua.trim().length() > 0) {
             headers.put("User-Agent", " " + ua);
         }
