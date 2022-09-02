@@ -59,6 +59,8 @@ public class Misc {
             } else if (!src.contains("://")) {
                 Uri parse = Uri.parse(base);
                 src = parse.getScheme() + "://" + parse.getHost() + src;
+            } else if (src.contains("url=")) {
+                src = src.replaceAll("\\S+url=(http.+)", "$1");
             }
         } catch (Exception e) {
             SpiderDebug.log(e);
@@ -98,6 +100,7 @@ public class Misc {
         } else {
             url = jsonPlayData.getString("url");
         }
+        url = url.replaceAll("\\","");
         if (url.startsWith("//")) {
             url = "https:" + url;
         }
